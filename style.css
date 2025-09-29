@@ -33,3 +33,12 @@ button{
     position: relative;
     
 }
+
+#Top input {
+    width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 2px solid #2317c9;
+    font-size: 18px;
+}
