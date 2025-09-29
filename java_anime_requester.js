@@ -1,3 +1,7 @@
+
+import { fetchAnimes } from "api.js";
+import { clearResults, showMessage, appendAnimeCard } from "ui.js";
+
 const form = document.getElementById("searchForm");
 const btnEffacer = document.getElementById("Effacer");
 const zoneResultats = document.getElementById("resultats");
