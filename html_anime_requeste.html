@@ -1,24 +1,36 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <script defer src="java_anime_requester.js"></script>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Anime Requester</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="module" defer src="java_anime_requester.js"></script>
 </head>
 <body>
-    <header>
-        Anime Requester
-    </header>
-    <div id="Top">
-         <input type="text" id="animeName" placeholder="Tape le nom d’un anime…" />
-        <button id="Rechercher" >Rechercher</button>
-        <button id="Effacer" >Effacer</button>
-    </div>
+  <header>
+    <h1 id="pageTitle">Anime Requester</h1>
+  </header>
 
-    <div id="resultats"></div>
-    
+  <main>
+    <form id="searchForm" aria-describedby="desc" novalidate>
+      <fieldset>
+      
+
+        <label for="animeName">Titre (ou partie du titre)</label>
+        <input type="text" id="animeName" name="animeName" placeholder="Ex : Naruto" />
+
+
+        <div class="form-actions">
+          <button type="submit" id="Rechercher">Rechercher</button>
+          <button type="button" id="Effacer">Effacer</button>
+        </div>
+      </fieldset>
+    </form>
+
+    <section id="resultats" aria-live="polite" aria-label="Résultats de recherche"></section>
+  </main>
+
+
 </body>
-
-
-
 </html>

@@ -1,68 +1,60 @@
-const boutonRechercher = document.getElementById("Rechercher");
-const boutonEffacer = document.getElementById("Effacer");
+const form = document.getElementById("searchForm");
+const btnEffacer = document.getElementById("Effacer");
 const zoneResultats = document.getElementById("resultats");
-const inputAnime = document.getElementById("animeName");
+const inputName = document.getElementById("animeName");
+const inputId = document.getElementById("animeId");
+const inputRanking = document.getElementById("ranking");
 
-const RAPIDAPI_HOST = "anime-db.p.rapidapi.com";
-const RAPIDAPI_KEY = "df5fe52db4msh6559a929065c42fp1446b6jsn3b2b1e0a9759";
+const RAPIDAPI_KEY = ""; 
 
-boutonRechercher.addEventListener("click", async () => {
-    const nom = inputAnime.value.trim();
-    if (!nom) {
-        zoneResultats.innerHTML = "<p>Veuillez saisir un nom d’anime.</p>";
-        return;
+form.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  clearResults(zoneResultats);
+
+  const name = inputName.value.trim();
+  const id = inputId.value.trim();
+  const ranking = inputRanking.value.trim();
+
+  if (!name && !id && !ranking) {
+    showMessage(zoneResultats, "Veuillez saisir un titre, un identifiant ou un classement.");
+    return;
+  }
+
+  try {
+    showMessage(zoneResultats, "Recherche en cours...");
+
+    const opts = {};
+    if (id) opts.id = id;
+    else if (ranking) opts.ranking = ranking;
+    else opts.search = name;
+
+    const data = await fetchAnimes(opts, RAPIDAPI_KEY);
+
+    const results = Array.isArray(data.data) ? data.data : (data.anime ? data.anime : []);
+
+    clearResults(zoneResultats);
+
+    if (!results || results.length === 0) {
+      showMessage(zoneResultats, "Aucun anime trouvé.");
+      return;
     }
 
-    const query = encodeURIComponent(nom);
-    const url = `https://anime-db.p.rapidapi.com/anime?page=1&size=10&search=${query}&genres=Fantasy,Drama&sortBy=ranking&sortOrder=asc`;
-
-    const options = {
-        method: "GET",
-        headers: {
-            "x-rapidapi-host": RAPIDAPI_HOST,
-            "x-rapidapi-key": RAPIDAPI_KEY
-        }
-    };
-
-    try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-
-
-        console.log("Réponse API :", data);
-
-        zoneResultats.innerHTML = "";  
-        if (!data.data || data.data.length === 0) {
-            zoneResultats.innerHTML = "<p>Aucun anime trouvé.</p>";
-            return;
-        }
-
-        data.data.forEach(anime => {
-            const card = document.createElement("div");
-            card.classList.add("anime-card");
-
-            card.innerHTML = `
-                <img src="${anime.image}" alt="${anime.title}">
-                <div>
-                    <h3>${anime.title}</h3>
-                    <p>${anime.synopsis ? anime.synopsis.substring(0, 150) + "..." : "Pas de résumé disponible."}</p>
-                </div>
-            `;
-
-            zoneResultats.appendChild(card);
-        });
-
-    } catch (error) {
-        console.error("Erreur lors de la requête :", error);
-        zoneResultats.innerHTML = "<p>Erreur lors de la récupération des données.</p>";
+    if (id || ranking) {
+      appendAnimeCard(zoneResultats, results[0]);
+    } else {
+      const max = Math.min(results.length, 10);
+      for (let i=0;i<max;i++) appendAnimeCard(zoneResultats, results[i]);
     }
+
+  } catch (err) {
+    console.error(err);
+    showMessage(zoneResultats, "Erreur lors de la récupération des données.");
+  }
 });
 
-boutonEffacer.addEventListener("click", () => {
-    inputAnime.value = "";
-    zoneResultats.innerHTML = "";
-})
-
+btnEffacer.addEventListener("click", () => {
+  inputName.value = "";
+  inputId.value = "";
+  inputRanking.value = "";
+  clearResults(zoneResultats);
+});
