@@ -1,0 +1,35 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #222;
+    color: white;
+}
+
+header {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+    position: fixed;
+    top:5%;
+}
+
+button{
+    width: 200px;
+    padding:10px;
+    margin: 10px;
+    border-radius: 8px;
+    font-size: 20px;
+    border: 2px solid #2317c9;
+    position: relative;
+    
+}
