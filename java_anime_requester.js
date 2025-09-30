@@ -1,81 +1,124 @@
-// java_anime_requester.js
+const RAPIDAPI_HOST = "anime-db.p.rapidapi.com";
+const RAPIDAPI_KEY = "df5fe52db4msh6559a929065c42fp1446b6jsn3b2b1e0a9759";
 
-// Récupération des éléments du DOM
-const form = document.getElementById("search-form");
-const input = document.getElementById("search-input");
-const resetBtn = document.getElementById("reset-btn");
-const resultsDiv = document.getElementById("results");
-const filterSelect = document.getElementById("filter-select");
+async function fetchAnimesByName(query) {
+  const url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&search=${encodeURIComponent(query)}`;
+  return fetchApi(url);
+}
 
-// Fonction pour rechercher un anime
-async function searchAnime(query, type = "") {
+async function fetchAnimeById(id) {
+  const url = `https://${RAPIDAPI_HOST}/anime/by-id/${encodeURIComponent(id)}`;
+  return fetchApi(url, true);
+}
+
+async function fetchTopRanking() {
+  const url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&sortBy=ranking&sortOrder=asc`;
+  return fetchApi(url, true);
+}
+
+async function fetchApi(url, single = false) {
+  const options = {
+    method: "GET",
+    headers: {
+      "x-rapidapi-host": RAPIDAPI_HOST,
+      "x-rapidapi-key": RAPIDAPI_KEY
+    }
+  };
+  const response = await fetch(url, options);
+  if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+  const data = await response.json();
+  return single ? [data] : data.data || [];
+}
+
+function createCard(anime) {
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const img = document.createElement("img");
+  img.src = anime.image;
+  img.alt = anime.title;
+  card.appendChild(img);
+
+  const title = document.createElement("h2");
+  title.textContent = anime.title;
+  card.appendChild(title);
+
+  if (anime.ranking) {
+    const ranking = document.createElement("p");
+    ranking.textContent = `Classement : ${anime.ranking}`;
+    card.appendChild(ranking);
+  }
+
+  if (anime.episodes) {
+    const episodes = document.createElement("p");
+    episodes.textContent = `Épisodes : ${anime.episodes}`;
+    card.appendChild(episodes);
+  }
+
+  if (anime.genres) {
+    const genres = document.createElement("p");
+    genres.textContent = `Genres : ${anime.genres.join(", ")}`;
+    card.appendChild(genres);
+  }
+
+  const synopsis = document.createElement("p");
+  synopsis.textContent = anime.synopsis || "Pas de synopsis disponible.";
+  card.appendChild(synopsis);
+
+  return card;
+}
+
+async function displayResults(query, type) {
+  const resultsDiv = document.getElementById("results");
+  resultsDiv.textContent = "Chargement...";
+
   try {
-    resultsDiv.innerHTML = "<p>Chargement...</p>";
+    let animes = [];
 
-    // API Jikan (MyAnimeList)
-    let url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=10`;
-    if (type && type !== "all") {
-      url += `&type=${type}`;
+    if (type === "name") {
+      animes = await fetchAnimesByName(query);
+    } else if (type === "id") {
+      animes = await fetchAnimeById(query);
+    } else if (type === "ranking") {
+      animes = await fetchTopRanking();
     }
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Erreur de chargement");
-
-    const data = await response.json();
-    displayResults(data.data);
-  } catch (error) {
-    resultsDiv.innerHTML = `<p style="color:red;">Erreur : ${error.message}</p>`;
+    resultsDiv.textContent = "";
+    if (animes.length === 0) {
+      resultsDiv.textContent = "Aucun anime trouvé.";
+      return;
+    }
+    animes.forEach(anime => resultsDiv.appendChild(createCard(anime)));
+  } catch (err) {
+    console.error(err);
+    resultsDiv.textContent = "Erreur lors de la récupération des données.";
   }
 }
 
-// Affichage des résultats
-function displayResults(animes) {
-  if (animes.length === 0) {
-    resultsDiv.innerHTML = "<p>Aucun résultat trouvé.</p>";
-    return;
-  }
+function main() {
+  const form = document.getElementById("search-form");
+  const input = document.getElementById("search-input");
+  const resetBtn = document.getElementById("reset-btn");
+  const select = document.getElementById("search-type");
 
-  resultsDiv.innerHTML = ""; // reset
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const query = input.value.trim();
+    const type = select.value;
 
-  animes.forEach((anime) => {
-    const card = document.createElement("div");
-    card.classList.add("anime-card");
+    if (type === "ranking") {
+      displayResults("", type);
+    } else if (query) {
+      displayResults(query, type);
+    } else {
+      document.getElementById("results").textContent = "Veuillez entrer une valeur.";
+    }
+  });
 
-    card.innerHTML = `
-      <img src="${anime.images.jpg.image_url}" alt="${anime.title}" width="120">
-      <h3>${anime.title}</h3>
-      <p><strong>Type :</strong> ${anime.type}</p>
-      <p><strong>Épisodes :</strong> ${anime.episodes ?? "?"}</p>
-      <p><strong>Note :</strong> ${anime.score ?? "?"}</p>
-    `;
-
-    resultsDiv.appendChild(card);
+  resetBtn.addEventListener("click", () => {
+    input.value = "";
+    document.getElementById("results").textContent = "";
   });
 }
 
-// Événement recherche
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const query = input.value.trim();
-  const type = filterSelect.value;
-
-  if (query) {
-    searchAnime(query, type);
-  } else {
-    resultsDiv.innerHTML = "<p style='color:orange;'>Veuillez entrer un nom d’anime.</p>";
-  }
-});
-
-// Événement reset
-resetBtn.addEventListener("click", () => {
-  input.value = "";
-  resultsDiv.innerHTML = "";
-});
-
-// Changement du filtre (menu déroulant)
-filterSelect.addEventListener("change", () => {
-  const query = input.value.trim();
-  if (query) {
-    searchAnime(query, filterSelect.value);
-  }
-});
+main();
