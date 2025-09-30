@@ -1,42 +1,24 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
   <title>Anime Requester</title>
-  <link rel="stylesheet" href="style.css" />
-  <script type="module" defer src="java_anime_requester.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="java_anime_requester.js"></script>
 </head>
 <body>
   <header>
-    <h1 id="pageTitle">Anime Requester</h1>
+    <h1>Anime Requester</h1>
   </header>
 
   <main>
-    <form id="searchForm" aria-describedby="desc" novalidate>
-      <fieldset>
-      
-
-        <label for="animeName">Titre (ou partie du titre)</label>
-        <select id="searchType" name="searchType" aria-label="Type de recherche">
-          <option value="title">Titre</option>
-          <option value="id">Identifiant</option>
-          <option value="ranking">Classement</option>
-        </select>
-
-         <label for="query">Saisie</label>
-        <input id="query" name="query" type="text" inputmode="text" placeholder="Ex : Fullmetal" aria-required="true">
-
-        <div class="form-actions">
-          <button type="submit" id="Rechercher">Rechercher</button>
-          <button type="button" id="Effacer">Effacer</button>
-        </div>
-      </fieldset>
+    <form id="search-form">
+      <input type="text" id="search-input" placeholder="Rechercher un anime..." />
+      <button type="submit">Rechercher</button>
+      <button type="reset" id="reset-btn">Effacer</button>
     </form>
 
-    <section id="resultats" aria-live="polite" aria-label="Résultats de recherche"></section>
+    <div id="results"></div>
   </main>
-
-
 </body>
 </html>
