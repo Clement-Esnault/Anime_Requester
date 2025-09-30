@@ -80,3 +80,15 @@ footer {
   width: 100%;
   margin-top: auto;
 }
+
+select {
+  padding: 10px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: 2px solid #2317c9;
+  background: #111;
+  color: white;
+  cursor: pointer;
+}
+
+
