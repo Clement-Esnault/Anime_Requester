@@ -21,6 +21,7 @@ header {
     text-align: center;
     position: fixed;
     top:5%;
+    font-style: italic;
 }
 
 button{
@@ -31,11 +32,11 @@ button{
     font-size: 20px;
     border: 2px solid #2317c9;
     position: relative;
-    
 }
 
 button:hover {
-  background-color: #2196f3;
+  background-color: #2317c9;;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
   font-style: italic;
+  color: white;
 }
