@@ -18,8 +18,14 @@
       
 
         <label for="animeName">Titre (ou partie du titre)</label>
-        <input type="text" id="animeName" name="animeName" placeholder="Ex : Naruto" />
+        <select id="searchType" name="searchType" aria-label="Type de recherche">
+          <option value="title">Titre</option>
+          <option value="id">Identifiant</option>
+          <option value="ranking">Classement</option>
+        </select>
 
+         <label for="query">Saisie</label>
+        <input id="query" name="query" type="text" inputmode="text" placeholder="Ex : Fullmetal" aria-required="true">
 
         <div class="form-actions">
           <button type="submit" id="Rechercher">Rechercher</button>
