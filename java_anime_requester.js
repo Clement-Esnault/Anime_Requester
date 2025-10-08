@@ -1,5 +1,5 @@
 const RAPIDAPI_HOST = "anime-db.p.rapidapi.com";
-const RAPIDAPI_KEY = "df5fe52db4msh6559a929065c42fp1446b6jsn3b2b1e0a9759";
+const RAPIDAPI_KEY = "c3f8c3c722msh4c20a842d8ebbe3p187c73jsned310e13e580";
 
 async function fetchAnimesByName(query) {
   const url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&search=${encodeURIComponent(query)}`;
@@ -11,23 +11,36 @@ async function fetchAnimeById(id) {
   return fetchApi(url, true);
 }
 
-async function fetchTopRanking() {
-  const url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&sortBy=ranking&sortOrder=asc`;
-  return fetchApi(url, true);
+async function fetchAnimeRanking(ranking) {
+  const url = `https://${RAPIDAPI_HOST}/anime/by-ranking/${encodeURIComponent(ranking)}`;
+  return fetchApi(url,true);
 }
 
 async function fetchApi(url, single = false) {
-  const options = {
-    method: "GET",
-    headers: {
-      "x-rapidapi-host": RAPIDAPI_HOST,
-      "x-rapidapi-key": RAPIDAPI_KEY
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "X-RapidAPI-Host": RAPIDAPI_HOST,
+        "X-RapidAPI-Key": RAPIDAPI_KEY
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur réseau : " + response.status);
     }
-  };
-  const response = await fetch(url, options);
-  if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
-  const data = await response.json();
-  return single ? [data] : data.data || [];
+
+    const data = await response.json();
+
+    if (single === true) {
+      return data;
+    } else {
+      return data.data;
+    }
+  } catch (error) {
+    console.error("Erreur dans fetchApi :", error);
+    throw error;
+  }
 }
 
 function createCard(anime) {
@@ -74,21 +87,22 @@ async function displayResults(query, type) {
 
   try {
     let animes = [];
+    let anime;
 
     if (type === "name") {
       animes = await fetchAnimesByName(query);
+      resultsDiv.textContent = "";
+      animes.forEach(anime => resultsDiv.appendChild(createCard(anime)));
     } else if (type === "id") {
-      animes = await fetchAnimeById(query);
+      anime = await fetchAnimeById(query);
+      resultsDiv.textContent = "";
+      resultsDiv.appendChild(createCard(anime));
     } else if (type === "ranking") {
-      animes = await fetchTopRanking();
+      anime = await fetchAnimeRanking(query);
+      resultsDiv.textContent = "";
+      resultsDiv.appendChild(createCard(anime))
     }
 
-    resultsDiv.textContent = "";
-    if (animes.length === 0) {
-      resultsDiv.textContent = "Aucun anime trouvé.";
-      return;
-    }
-    animes.forEach(anime => resultsDiv.appendChild(createCard(anime)));
   } catch (err) {
     console.error(err);
     resultsDiv.textContent = "Erreur lors de la récupération des données.";
@@ -107,7 +121,7 @@ function main() {
     const type = select.value;
 
     if (type === "ranking") {
-      displayResults("", type);
+      displayResults(query, type);
     } else if (query) {
       displayResults(query, type);
     } else {
