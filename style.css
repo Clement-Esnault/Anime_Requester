@@ -9,8 +9,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #222;
-  color: white;
 }
 
 header {
@@ -96,4 +94,51 @@ select {
   cursor: pointer;
 }
 
+body {
+  background: white;
+  color: black;
+}
 
+header, footer {
+  background: lightgray;
+  color: black;
+}
+
+input, select, button {
+  background: white;
+  color: black;
+  border: 1px solid black;
+}
+
+.card {
+  background: white;
+  color: black;
+  border: 1px solid black;
+  padding: 10px;
+  margin: 10px;
+}
+
+body.dark {
+  background: black;
+  color: white;
+}
+
+body.dark header,
+body.dark footer {
+  background: #111;
+  color: white;
+}
+
+body.dark input,
+body.dark select,
+body.dark button {
+  background: #222;
+  color: white;
+  border: 1px solid white;
+}
+
+body.dark .card {
+  background: #333;
+  color: white;
+  border: 1px solid white;
+}
