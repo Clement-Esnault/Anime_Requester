@@ -21,10 +21,45 @@ header {
   z-index: 10;
 }
 
+.apikey{
+  font-size:large;
+  text-align: left;
+}
+
 .theme{
   text-align: right;
   font-size:large;
 }
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  margin-bottom: 10px;
+}
+
+.apikey label {
+  margin-right: 8px;
+}
+
+.apikey input {
+  padding: 6px 8px;
+  font-size: 16px;
+  border-radius: 6px;
+  margin-right: 8px;
+  border: 1px solid #2317c9;
+}
+
+.apikey button {
+  font-size: 16px;
+  padding: 6px 12px;
+}
+
+.theme label {
+  margin-right: 8px;
+}
+
 
 main {
   flex: 1;
