@@ -109,6 +109,28 @@ async function displayResults(query, type) {
   }
 }
 
+function initTheme() {
+  const themeSelect = document.getElementById("theme");
+  const savedTheme = localStorage.getItem("theme") || "light";
+
+  document.body.classList.toggle("dark", savedTheme === "dark");
+  themeSelect.value = savedTheme;
+
+  themeSelect.addEventListener("change", () => {
+    const selectedTheme = themeSelect.value;
+    if (selectedTheme === "dark") {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+    localStorage.setItem("theme", selectedTheme);
+  });
+}
+window.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+});
+
+
 function main() {
   const form = document.getElementById("search-form");
   const input = document.getElementById("search-input");
