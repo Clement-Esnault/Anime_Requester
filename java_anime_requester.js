@@ -1,5 +1,20 @@
 const RAPIDAPI_HOST = "anime-db.p.rapidapi.com";
-const RAPIDAPI_KEY = "c3f8c3c722msh4c20a842d8ebbe3p187c73jsned310e13e580";
+//const RAPIDAPI_KEY = "c3f8c3c722msh4c20a842d8ebbe3p187c73jsned310e13e580";
+
+
+function getApiKey() {
+  return sessionStorage.getItem("RAPIDAPI_KEY") || "";
+}
+
+document.getElementById("save-api-key").addEventListener("click", () => {
+  const key = document.getElementById("api-key").value.trim();
+  if (key) {
+    sessionStorage.setItem("RAPIDAPI_KEY", key);
+    alert("Clé API sauvegardée !");
+  } else {
+    alert("Veuillez entrer une clé API valide.");
+  }
+});
 
 async function fetchAnimesByName(query) {
   const url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&search=${encodeURIComponent(query)}`;
@@ -22,7 +37,7 @@ async function fetchApi(url, single = false) {
       method: "GET",
       headers: {
         "X-RapidAPI-Host": RAPIDAPI_HOST,
-        "X-RapidAPI-Key": RAPIDAPI_KEY
+        "X-RapidAPI-Key": getApiKey()
       }
     });
 
