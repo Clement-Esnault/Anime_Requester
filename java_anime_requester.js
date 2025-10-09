@@ -11,10 +11,14 @@ document.getElementById("save-api-key").addEventListener("click", () => {
   if (key) {
     sessionStorage.setItem("RAPIDAPI_KEY", key);
     alert("Clé API sauvegardée !");
+    loadGenres();
   } else {
     alert("Veuillez entrer une clé API valide.");
   }
 });
+
+
+
 
 async function fetchAnimesByName(query) {
   const url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&search=${encodeURIComponent(query)}`;
@@ -141,9 +145,7 @@ function initTheme() {
     localStorage.setItem("theme", selectedTheme);
   });
 }
-window.addEventListener("DOMContentLoaded", () => {
-  initTheme();
-});
+
 
 
 function main() {
@@ -172,4 +174,41 @@ function main() {
   });
 }
 
+async function loadGenres() {
+  const genreUrl = `https://${RAPIDAPI_HOST}/genre`;
+  const resultsGenre = document.getElementById("genre");
+  console.log(genreUrl)
+  console.table()
+
+  try {
+    const genres = await fetchApi(genreUrl,true); 
+
+    resultsGenre.textContent = ""; 
+    resultsGenre.id
+    genres.forEach(type => {
+      const label = document.createElement("label");
+      label.style.display = "block"; 
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = type.id;
+      checkbox.name = "genre";
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(" " + type._id));
+      
+      resultsGenre.appendChild(label);
+    });
+  } catch (err) {
+    console.error("Erreur lors du chargement des genres :", err);
+    resultsGenre.textContent = "Impossible de charger les genres.";
+  }
+};
+
+
+
+window.addEventListener("DOMContentLoaded" ,() => {
+  initTheme()
+  
+
+});
 main();
