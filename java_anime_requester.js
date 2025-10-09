@@ -1,11 +1,9 @@
 const RAPIDAPI_HOST = "anime-db.p.rapidapi.com";
 //const RAPIDAPI_KEY = "c3f8c3c722msh4c20a842d8ebbe3p187c73jsned310e13e580";
 
-
 function getApiKey() {
   return sessionStorage.getItem("RAPIDAPI_KEY") || "";
 }
-
 document.getElementById("save-api-key").addEventListener("click", () => {
   const key = document.getElementById("api-key").value.trim();
   if (key) {
@@ -17,24 +15,6 @@ document.getElementById("save-api-key").addEventListener("click", () => {
   }
 });
 
-
-
-
-async function fetchAnimesByName(query) {
-  const url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&search=${encodeURIComponent(query)}`;
-  return fetchApi(url);
-}
-
-async function fetchAnimeById(id) {
-  const url = `https://${RAPIDAPI_HOST}/anime/by-id/${encodeURIComponent(id)}`;
-  return fetchApi(url, true);
-}
-
-async function fetchAnimeRanking(ranking) {
-  const url = `https://${RAPIDAPI_HOST}/anime/by-ranking/${encodeURIComponent(ranking)}`;
-  return fetchApi(url,true);
-}
-
 async function fetchApi(url, single = false) {
   try {
     const response = await fetch(url, {
@@ -45,17 +25,10 @@ async function fetchApi(url, single = false) {
       }
     });
 
-    if (!response.ok) {
-      throw new Error("Erreur réseau : " + response.status);
-    }
+    if (!response.ok) throw new Error("Erreur réseau : " + response.status);
 
     const data = await response.json();
-
-    if (single === true) {
-      return data;
-    } else {
-      return data.data;
-    }
+    return single ? data : data.data;
   } catch (error) {
     console.error("Erreur dans fetchApi :", error);
     throw error;
@@ -100,27 +73,84 @@ function createCard(anime) {
   return card;
 }
 
+async function loadGenres() {
+  const genreList = document.getElementById("genre-list");
+  const genreUrl = `https://${RAPIDAPI_HOST}/genre`;
+
+  try {
+    const data = await fetchApi(genreUrl, true);
+    const genres = data.data || data;
+
+    genreList.textContent = "";
+
+    genres.forEach(g => {
+      const label = document.createElement("label");
+      label.style.display = "inline-block";
+      label.style.margin = "5px";
+      label.style.cursor = "pointer";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = g._id || g.id || g;
+      checkbox.name = "genre";
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(" " + (g._id || g.name || g)));
+
+      genreList.appendChild(label);
+    });
+  } catch (err) {
+    console.error("Erreur lors du chargement des genres :", err);
+    genreList.textContent = "Impossible de charger les genres.";
+  }
+}
+
 async function displayResults(query, type) {
   const resultsDiv = document.getElementById("results");
   resultsDiv.textContent = "Chargement...";
 
   try {
     let animes = [];
-    let anime;
+    let url;
 
     if (type === "name") {
-      animes = await fetchAnimesByName(query);
-      resultsDiv.textContent = "";
-      animes.forEach(anime => resultsDiv.appendChild(createCard(anime)));
-    } else if (type === "id") {
-      anime = await fetchAnimeById(query);
-      resultsDiv.textContent = "";
-      resultsDiv.appendChild(createCard(anime));
-    } else if (type === "ranking") {
-      anime = await fetchAnimeRanking(query);
-      resultsDiv.textContent = "";
-      resultsDiv.appendChild(createCard(anime))
+      url = `https://${RAPIDAPI_HOST}/anime?page=1&size=10&search=${encodeURIComponent(query)}`;
+      animes = await fetchApi(url);
+    } 
+    else if (type === "id") {
+      url = `https://${RAPIDAPI_HOST}/anime/by-id/${encodeURIComponent(query)}`;
+      const anime = await fetchApi(url, true);
+      animes = [anime];
+    } 
+    else if (type === "ranking") {
+      url = `https://${RAPIDAPI_HOST}/anime/by-ranking/${encodeURIComponent(query)}`;
+      const anime = await fetchApi(url, true);
+      animes = [anime];
+    } 
+    else if (type === "genre") {
+      const selectedGenres = Array.from(document.querySelectorAll("input[name='genre']:checked"))
+                                  .map(cb => cb.value);
+
+      if (selectedGenres.length === 0) {
+        resultsDiv.textContent = "Veuillez sélectionner au moins un genre.";
+        return;
+      }
+
+      url = `https://${RAPIDAPI_HOST}/anime?page=1&size=50&genres=${encodeURIComponent(selectedGenres.join(","))}`;
+      animes = await fetchApi(url);
+      animes = animes.filter(anime => {
+        if (!anime.genres) return false;
+        return selectedGenres.every(g => anime.genres.includes(g));
+      });
+
+      if (animes.length === 0) {
+        resultsDiv.textContent = "Aucun anime ne correspond à tous les genres sélectionnés.";
+        return;
+      }
     }
+
+    resultsDiv.textContent = "";
+    animes.forEach(anime => resultsDiv.appendChild(createCard(anime)));
 
   } catch (err) {
     console.error(err);
@@ -137,16 +167,10 @@ function initTheme() {
 
   themeSelect.addEventListener("change", () => {
     const selectedTheme = themeSelect.value;
-    if (selectedTheme === "dark") {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove("dark");
-    }
+    document.body.classList.toggle("dark", selectedTheme === "dark");
     localStorage.setItem("theme", selectedTheme);
   });
 }
-
-
 
 function main() {
   const form = document.getElementById("search-form");
@@ -159,56 +183,24 @@ function main() {
     const query = input.value.trim();
     const type = select.value;
 
-    if (type === "ranking") {
-      displayResults(query, type);
-    } else if (query) {
-      displayResults(query, type);
-    } else {
+    if ((type !== "genre" && !query)) {
       document.getElementById("results").textContent = "Veuillez entrer une valeur.";
+      return;
     }
+
+    displayResults(query, type);
   });
 
   resetBtn.addEventListener("click", () => {
     input.value = "";
     document.getElementById("results").textContent = "";
+    document.querySelectorAll("input[name='genre']").forEach(cb => cb.checked = false);
   });
 }
 
-async function loadGenres() {
-  const genreUrl = `https://${RAPIDAPI_HOST}/genre`;
-  const resultsGenre = document.getElementById("genre");
-  console.log(genreUrl)
-  console.table()
-
-  try {
-    const genres = await fetchApi(genreUrl,true); 
-
-    resultsGenre.textContent = ""; 
-    resultsGenre.id
-    genres.forEach(type => {
-      const label = document.createElement("label");
-      label.style.display = "block"; 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.value = type.id;
-      checkbox.name = "genre";
-
-      label.appendChild(checkbox);
-      label.appendChild(document.createTextNode(" " + type._id));
-      
-      resultsGenre.appendChild(label);
-    });
-  } catch (err) {
-    console.error("Erreur lors du chargement des genres :", err);
-    resultsGenre.textContent = "Impossible de charger les genres.";
-  }
-};
-
-
-
-window.addEventListener("DOMContentLoaded" ,() => {
-  initTheme()
-  
-
+window.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  if (getApiKey()) loadGenres();
 });
+
 main();

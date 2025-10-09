@@ -29,22 +29,24 @@
 
   <main>
     <form id="search-form">
-    <div id="genre">
-      <label for="genre">Genre :</label>
-     <select></select>
-      </div>
-   
-     
+
      </nav>
       <label for="search-type">Rechercher par :</label>
       <select id="search-type">
       <option value="name">Nom</option>
       <option value="id">Identifiant</option>
       <option value="ranking">Classement</option>
+      <option value="genre">Genre</option>
       </select>
       <input type="text" id="search-input" placeholder="Rechercher un anime..." />
       <button type="submit">Rechercher</button>
      <button type="reset" id="reset-btn">Effacer</button>
+
+      <div id="genre-container">
+       <label>Genres :</label>
+       <div id="genre-list"></div>
+      </div>
+
     </form>
 
 
