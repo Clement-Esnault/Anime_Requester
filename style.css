@@ -150,6 +150,8 @@ input, select, button {
   border: 1px solid black;
   padding: 10px;
   margin: 10px;
+  text-align: justify;
+  border-radius: 2%;
 }
 
 body.dark {
@@ -174,4 +176,6 @@ body.dark .card {
   background: #333;
   color: white;
   border: 1px solid #00b3ff;
+  text-align: justify;
+  border-radius: 2%;
 }
