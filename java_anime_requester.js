@@ -1,3 +1,4 @@
+/* jshint esversion: 8 */
 const RAPIDAPI_HOST = "anime-db.p.rapidapi.com";
 //const RAPIDAPI_KEY = "c3f8c3c722msh4c20a842d8ebbe3p187c73jsned310e13e580";
 //const RAPIDAPI_KEY = "df5fe52db4msh6559a929065c42fp1446b6jsn3b2b1e0a9759";
